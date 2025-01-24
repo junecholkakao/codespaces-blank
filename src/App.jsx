@@ -10,9 +10,32 @@ function App() {
     addingProject: false,
     selectedProjectId: null,
     projects: [],
+    tasks:[]
   });
 
-  console.log(projectsState);
+  console.log(projectsState)
+
+  function handleAddTask(projectId, taskDescription) {
+    setProjectsState((prevState) => {
+      return {
+        ...prevState,
+        tasks: [...prevState.tasks, {
+          id: uuid(),
+          projectId: projectId,
+          description: taskDescription
+        }],
+      };
+    });
+  }
+
+  function handleDeleteTask(taskId) {
+    setProjectsState((prevState) => {
+      return {
+        ...prevState,
+        tasks: prevState.tasks.filter(task=>task.id !== taskId),
+      };
+    });
+  }
 
   function handleStartAddProject() {
     setProjectsState((prevState) => {
@@ -31,6 +54,21 @@ function App() {
         addingProject: false,
       };
     });
+  }
+
+  function handleDeleteProject() {
+    const newProjects = 
+      projectsState.projects.filter(project=>project.id !== projectsState.selectedProjectId)
+    const newTasks = 
+      projectsState.tasks.filter(task=>task.projectId!==projectsState.selectedProjectId)
+    setProjectsState((prevState)=>{
+      return {
+        ...prevState,
+        selectedProjectId: null,
+        projects:newProjects,
+        tasks:newTasks
+      };
+    })
   }
 
   function handleSaveProject(projectData) {
@@ -74,9 +112,16 @@ function App() {
           <NewProject
             cancelHandler={handleCancelAddProject}
             saveHandler={handleSaveProject}
+
           />
         ) : selectedProject ? (
-          <SelectedProject project={selectedProject} />
+          <SelectedProject 
+            project={selectedProject} 
+            onDeleteProject={handleDeleteProject}
+            handleAddTask={handleAddTask}
+            handleDeleteTask={handleDeleteTask}
+            tasks={projectsState.tasks}
+            />
         ) : (
           <NoProjectSelected onStartAddProject={handleStartAddProject} />
         )}
